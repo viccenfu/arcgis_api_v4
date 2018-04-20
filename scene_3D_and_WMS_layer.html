@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>3D Scene and WMS Service</title>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.7/esri/css/main.css">
+
+  <script src="https://js.arcgis.com/4.7/"></script>
+
+  <script>
+    require([
+	  "esri/config",
+      "esri/Map",
+      "esri/views/SceneView",
+      "esri/layers/Layer",
+	  "esri/widgets/BasemapGallery",
+	  "esri/layers/WMSLayer",
+      "dojo/domReady!"
+    ], function(
+      esriConfig, Map, SceneView, Layer, BasemapGallery, WMSLayer
+    ) {
+
+      var map = new Map({
+        basemap: "gray",
+      });
+
+      var view = new SceneView({
+        map: map,
+        container: "viewDiv",
+        zoom: 17,
+        center: [-0.37, 39.47]
+      });
+
+	  var basemapGallery = new BasemapGallery({
+		view: view
+	  });
+	  // Add widget to the bottom left corner of the view
+	  view.ui.add(basemapGallery, {
+	    position: "top-right"
+	  });
+	  
+      /************************************************
+       *
+       * Create a layer from an existing Portal item hosted
+       * in ArcGIS Online using the ID of the item.
+       *
+       *************************************************/
+      /*Layer.fromPortalItem({
+          portalItem: { // autocasts as new PortalItem()
+            id: "f878851138c44197a10b93ebee3fac2c"
+          }
+        }).then(addLayer)
+        .otherwise(rejection);
+*/
+		// Use a proxy for the initial WMS GetCapabilities request if the WMS server is not enabled for CORS
+      // esriConfig.request.proxyUrl  = "/proxy/";
+
+      //esriConfig.request.corsEnabledServers.push("ows.terrestris.de");
+	  esriConfig.request.corsEnabledServers.push("carto.icv.gva.es");
+
+      /*var layer = new WMSLayer({
+        url: "https://ows.terrestris.de/osm/service",
+        sublayers: [{
+          name: "OSM-WMS"
+        }]
+      });*/
+	  var layer = new WMSLayer({
+        url: "http://carto.icv.gva.es/arcgis/services/tm_infraestructuras/vivienda/MapServer/WmsServer?",
+        sublayers: [{
+          name: "15"
+        }]
+      });
+	  
+	  map.add(layer);
+	  
+      // Adds the layer to the map once it loads
+      /*function addLayer(lyr) {
+        map.add(lyr);
+		//map.add(layer);
+      }*/
+
+      function rejection(err) {
+        console.log("Layer failed to load: ", err);
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+</body>
+
+</html>
